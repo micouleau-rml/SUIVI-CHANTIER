@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Suivi Chantier V7.1 Pro</title>
+<title>Suivi Chantier V7.2 Pro</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -128,7 +128,7 @@ input.name{min-width:150px;flex:1}
 .project-item:first-of-type{border-top:0}
 .debug{display:none;background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;border-radius:14px;padding:10px;margin:12px}
 @media(min-width:700px){
-  .product-grid{grid-template-columns:1.2fr .8fr .8fr .8fr}
+  .product-grid{grid-template-columns:1.2fr .8fr .8fr .8fr .8fr}
 }
 
 .ilot-summary{
@@ -196,12 +196,46 @@ input.name{min-width:150px;flex:1}
   input.qty,input.total{width:90px}
 }
 
+
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo-box{
+  width:44px;
+  height:44px;
+  border-radius:12px;
+  background:white;
+  color:#111827;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  flex:0 0 auto;
+}
+.header-title{
+  display:flex;
+  flex-direction:column;
+}
+.product-pct{
+  color:#2563eb;
+  font-weight:900;
+}
+
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>Suivi Chantier V7.1 Pro</h1>
-  <div class="sub" id="headerSub">Chargement...</div>
+  <div class="logo-wrap">
+    <div class="logo-box">MC</div>
+    <div class="header-title">
+      <h1>SARL MICOULEAU JC</h1>
+      <div class="sub" id="headerSub">Suivi Chantier V7.2 Pro</div>
+    </div>
+  </div>
 </div>
 
 <div id="debug" class="debug"></div>
@@ -374,7 +408,9 @@ function renderProject(){
       html+="<div><b>"+esc(pr.nom)+"</b><div class='muted'>Unité : "+esc(pr.unite||"u")+"</div></div>";
       html+="<div class='kpi'><span>Prévu</span><input class='total' type='number' inputmode='decimal' value='"+esc(pr.total)+"' onchange='setTotal(\""+il.id+"\",\""+pr.id+"\",this.value)'></div>";
       html+="<div class='kpi'><span>Posé</span><input class='qty' type='number' inputmode='decimal' value='"+esc(pr.pose)+"' onchange='setPose(\""+il.id+"\",\""+pr.id+"\",this.value)'></div>";
+      var pctPr=Number(pr.total||0)>0 ? Math.round((Number(pr.pose||0)/Number(pr.total||0))*100) : 0;
       html+="<div class='kpi'><span>Reste</span><strong class='"+cls+"'>"+reste+" "+esc(pr.unite||"")+"</strong></div>";
+      html+="<div class='kpi'><span>Avancement</span><strong class='product-pct'>"+pctPr+"%</strong></div>";
       html+="</div>";
       html+="<div class='row' style='margin-top:8px'><button class='btn btn-small btn-light' onclick='editProduct(\""+il.id+"\",\""+pr.id+"\")'>Modifier</button><button class='btn btn-small btn-red' onclick='deleteProduct(\""+il.id+"\",\""+pr.id+"\")'>Supprimer</button></div>";
       html+="</div>";
