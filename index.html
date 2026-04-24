@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Suivi Chantier V7.4</title>
+<title>RML Gouttière Alu - Suivi Chantier V7.5</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -211,6 +211,70 @@ input.name{min-width:150px;flex:1}
 }
 @media(min-width:700px){
   .product-grid{grid-template-columns:1.2fr .75fr .75fr .75fr .85fr}
+}
+
+
+/* === CORRECTION HEADER V7.5 === */
+.header{
+  background:#ffffff !important;
+  color:#111827 !important;
+  padding:14px 12px 18px !important;
+  box-shadow:0 2px 10px rgba(0,0,0,.12) !important;
+  border-bottom:1px solid #e5e7eb !important;
+}
+.rml-brand{
+  max-width:900px !important;
+  margin:0 auto !important;
+  text-align:center !important;
+  padding:0 12px !important;
+}
+.rml-brand img{
+  display:block !important;
+  margin:0 auto 14px !important;
+  max-width:118px !important;
+  max-height:82px !important;
+  object-fit:contain !important;
+}
+.rml-brand-title{
+  font-size:28px !important;
+  line-height:1.05 !important;
+  font-weight:900 !important;
+  letter-spacing:1px !important;
+  margin:0 !important;
+  clear:both !important;
+}
+.rml-brand-by{
+  font-size:16px !important;
+  font-weight:800 !important;
+  margin-top:5px !important;
+}
+.rml-brand-activity{
+  font-size:14px !important;
+  color:#374151 !important;
+  margin-top:8px !important;
+  line-height:1.35 !important;
+}
+.rml-app-sub{
+  font-size:12px !important;
+  color:#64748b !important;
+  margin-top:8px !important;
+}
+.container{
+  max-width:900px !important;
+  margin:0 auto !important;
+  padding:12px !important;
+}
+@media(max-width:520px){
+  .header{padding:12px 8px 16px !important}
+  .rml-brand{padding:0 8px !important}
+  .rml-brand img{
+    max-width:92px !important;
+    max-height:64px !important;
+    margin-bottom:12px !important;
+  }
+  .rml-brand-title{font-size:23px !important}
+  .rml-brand-by{font-size:14px !important}
+  .rml-brand-activity{font-size:12.5px !important}
 }
 
 </style>
