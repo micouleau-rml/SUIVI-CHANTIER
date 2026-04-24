@@ -2,82 +2,584 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>V7 + Ajout produit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suivi Chantier V7.1 Pro</title>
 <style>
-body{font-family:Arial;margin:0;background:#eef2f3}
-.header{background:#1f2937;color:#fff;padding:15px}
-.card{background:#fff;margin:10px;padding:15px;border-radius:12px}
-input{width:80px;font-size:18px;text-align:center}
-button{padding:8px;margin:5px;border-radius:6px;border:none;background:#2563eb;color:#fff}
-.add{background:#16a34a}
+:root{
+  --bg:#eef3f5;
+  --nav:#111827;
+  --card:#ffffff;
+  --blue:#2563eb;
+  --green:#16a34a;
+  --red:#dc2626;
+  --muted:#64748b;
+  --border:#e5e7eb;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:var(--bg);
+  color:#111827;
+  padding-bottom:92px;
+}
+.header{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:var(--nav);
+  color:white;
+  padding:14px 16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.header h1{font-size:18px;margin:0;font-weight:800}
+.header .sub{font-size:12px;color:#cbd5e1;margin-top:3px}
+.container{padding:12px;max-width:900px;margin:auto}
+.card{
+  background:var(--card);
+  border-radius:18px;
+  padding:14px;
+  margin:0 0 12px 0;
+  box-shadow:0 6px 18px rgba(15,23,42,.08);
+  border:1px solid rgba(226,232,240,.9);
+}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.title{font-weight:800;font-size:18px;margin-bottom:4px}
+.muted{color:var(--muted);font-size:13px}
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:800;
+  cursor:pointer;
+  font-size:14px;
+}
+.btn-blue{background:var(--blue);color:white}
+.btn-green{background:var(--green);color:white}
+.btn-light{background:#e5e7eb;color:#111827}
+.btn-red{background:var(--red);color:white}
+.btn-small{padding:7px 9px;font-size:12px;border-radius:10px}
+input,select{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:9px;
+  font-size:16px;
+  background:white;
+}
+input.qty{width:76px;text-align:center}
+input.total{width:86px;text-align:center}
+input.name{min-width:150px;flex:1}
+.ilot-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+.ilot-name{font-weight:900;font-size:17px}
+.product{
+  border-top:1px solid var(--border);
+  padding:12px 0;
+}
+.product:first-of-type{border-top:0}
+.product-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+}
+.kpi{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:8px;
+}
+.kpi strong{font-size:17px}
+.reste-ok{color:#16a34a}
+.reste-warn{color:#ea580c}
+.footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:20;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);
+  padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+.footer .btn{flex:1;max-width:180px}
+.screen{display:none}
+.screen.active{display:block}
+.project-item{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  border-top:1px solid var(--border);
+  padding:12px 0;
+}
+.project-item:first-of-type{border-top:0}
+.debug{display:none;background:#fff7ed;color:#7c2d12;border:1px solid #fed7aa;border-radius:14px;padding:10px;margin:12px}
+@media(min-width:700px){
+  .product-grid{grid-template-columns:1.2fr .8fr .8fr .8fr}
+}
+
+.ilot-summary{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:8px;
+  margin:10px 0 12px;
+}
+.ilot-summary .sum-box{
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:8px;
+  text-align:center;
+}
+.ilot-summary .sum-box span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+}
+.ilot-summary .sum-box strong{
+  font-size:17px;
+}
+.modal-back{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:50;
+  background:rgba(15,23,42,.55);
+  padding:20px;
+}
+.modal{
+  max-width:420px;
+  margin:80px auto 0;
+  background:white;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.25);
+}
+.modal h2{
+  margin:0 0 10px;
+  font-size:20px;
+}
+.modal label{
+  display:block;
+  font-weight:800;
+  margin-top:10px;
+  font-size:13px;
+}
+.modal input,.modal select{
+  width:100%;
+  margin-top:5px;
+}
+.modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+}
+.modal-actions .btn{
+  flex:1;
+}
+@media(max-width:520px){
+  .ilot-summary{grid-template-columns:1fr 1fr}
+  .product-grid{gap:10px}
+  input.qty,input.total{width:90px}
+}
+
 </style>
 </head>
 <body>
+<div class="header">
+  <h1>Suivi Chantier V7.1 Pro</h1>
+  <div class="sub" id="headerSub">Chargement...</div>
+</div>
 
-<div class="header">Suivi chantier V7 + Ajout produit</div>
-<div id="app"></div>
+<div id="debug" class="debug"></div>
+
+<div class="container">
+  <div id="screenProject" class="screen active"></div>
+  <div id="screenProjects" class="screen"></div>
+  <div id="screenSave" class="screen"></div>
+</div>
+
+
+<div id="productModal" class="modal-back">
+  <div class="modal">
+    <h2>Ajouter un produit</h2>
+    <input type="hidden" id="modalIlotId">
+    <label>Nom du produit</label>
+    <input id="modalProductName" placeholder="Ex : Naissance D80">
+    <label>Quantité prévue</label>
+    <input id="modalProductTotal" type="number" inputmode="decimal" value="0">
+    <label>Unité</label>
+    <select id="modalProductUnit">
+      <option value="u">u</option>
+      <option value="ml">ml</option>
+      <option value="m²">m²</option>
+      <option value="kg">kg</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-light" onclick="closeProductModal()">Annuler</button>
+      <button class="btn btn-blue" onclick="confirmAddProduct()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <button class="btn btn-light" onclick="showProjects()">Projets</button>
+  <button class="btn btn-blue" onclick="newProject()">+ Projet</button>
+  <button class="btn btn-light" onclick="showSave()">Sauvegarde</button>
+  <button class="btn btn-green" onclick="saveDB();flashSaved()">Enregistrer</button>
+</div>
 
 <script>
-let template = JSON.parse(localStorage.getItem("template_v7")||`{
-"Ilot 1":[["Gouttière",71],["Descentes",30]],
-"Ilot 2":[["Gouttière",150]]
-}`);
+var KEY="suivi_chantier_v7_pro_restore";
+var db=null;
+var currentId=null;
 
-let db=JSON.parse(localStorage.getItem("data_v7")||"{}");
+function uid(){
+  return "id"+String(new Date().getTime())+String(Math.floor(Math.random()*1000000));
+}
+function esc(s){
+  return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function byId(id){return document.getElementById(id)}
+function debug(msg){
+  var d=byId("debug");
+  d.style.display="block";
+  d.innerHTML=msg;
+}
+function defaultProject(){
+  return {
+    id:uid(),
+    nom:"Projet F&P",
+    client:"",
+    chantier:"",
+    ilots:[
+      {id:uid(),nom:"Ilot 1",produits:[
+        {id:uid(),nom:"Gouttière",total:71,unite:"ml",pose:0},
+        {id:uid(),nom:"Descentes",total:30,unite:"u",pose:0},
+        {id:uid(),nom:"Coudes",total:14,unite:"u",pose:0}
+      ]},
+      {id:uid(),nom:"Ilot 2",produits:[
+        {id:uid(),nom:"Gouttière",total:150,unite:"ml",pose:0},
+        {id:uid(),nom:"Descentes",total:69,unite:"u",pose:0},
+        {id:uid(),nom:"Coudes",total:20,unite:"u",pose:0}
+      ]}
+    ]
+  };
+}
+function loadDB(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(!raw){
+      db={projects:[defaultProject()]};
+      currentId=db.projects[0].id;
+      saveDB();
+      return;
+    }
+    db=JSON.parse(raw);
+    if(!db || !db.projects || !db.projects.length){
+      db={projects:[defaultProject()]};
+    }
+    currentId=localStorage.getItem(KEY+"_current") || db.projects[0].id;
+    if(!activeProject()) currentId=db.projects[0].id;
+  }catch(e){
+    db={projects:[defaultProject()]};
+    currentId=db.projects[0].id;
+    debug("Erreur de chargement. Une base neuve a été recréée : "+esc(e.message));
+  }
+}
+function saveDB(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(db));
+    localStorage.setItem(KEY+"_current",currentId);
+  }catch(e){
+    alert("Sauvegarde impossible sur cet appareil : "+e.message);
+  }
+}
+function activeProject(){
+  if(!db || !db.projects) return null;
+  for(var i=0;i<db.projects.length;i++){
+    if(db.projects[i].id===currentId) return db.projects[i];
+  }
+  return db.projects[0] || null;
+}
+function setScreen(name){
+  byId("screenProject").className="screen";
+  byId("screenProjects").className="screen";
+  byId("screenSave").className="screen";
+  byId(name).className="screen active";
+}
+function renderHeader(){
+  var p=activeProject();
+  byId("headerSub").innerHTML=p ? esc(p.nom)+" · "+p.ilots.length+" îlot(s)" : "Aucun projet";
+}
+function ilotStats(il){
+  var total=0, pose=0;
+  for(var x=0;x<il.produits.length;x++){
+    total+=Number(il.produits[x].total||0);
+    pose+=Number(il.produits[x].pose||0);
+  }
+  var reste=total-pose;
+  var pct=total>0 ? Math.round((pose/total)*100) : 0;
+  return {total:total,pose:pose,reste:reste,pct:pct};
+}
+function renderProject(){
+  var p=activeProject();
+  if(!p){byId("screenProject").innerHTML="<div class='card'>Aucun projet</div>";return;}
+  var html="";
+  html+="<div class='card'>";
+  html+="<div class='title'>"+esc(p.nom)+"</div>";
+  html+="<div class='muted'>Client : "+esc(p.client||"Non renseigné")+" · Chantier : "+esc(p.chantier||"Non renseigné")+"</div>";
+  html+="<div class='row' style='margin-top:12px'>";
+  html+="<button class='btn btn-blue' onclick='addIlot()'>+ Ajouter un îlot</button>";
+  html+="<button class='btn btn-light' onclick='editProject()'>Modifier projet</button>";
+  html+="</div></div>";
 
-function saveAll(){
- localStorage.setItem("template_v7",JSON.stringify(template));
- localStorage.setItem("data_v7",JSON.stringify(db));
+  for(var i=0;i<p.ilots.length;i++){
+    var il=p.ilots[i];
+    var st=ilotStats(il);
+    html+="<div class='card'>";
+    html+="<div class='ilot-head'>";
+    html+="<div class='ilot-name'>"+esc(il.nom)+"</div>";
+    html+="<div class='row'><button class='btn btn-small btn-light' onclick='renameIlot(\""+il.id+"\")'>Renommer</button><button class='btn btn-small btn-red' onclick='deleteIlot(\""+il.id+"\")'>Supprimer</button></div>";
+    html+="</div>";
+
+    html+="<div class='ilot-summary'>";
+    html+="<div class='sum-box'><span>Prévu</span><strong>"+st.total+"</strong></div>";
+    html+="<div class='sum-box'><span>Posé</span><strong>"+st.pose+"</strong></div>";
+    html+="<div class='sum-box'><span>Reste</span><strong class='"+(st.reste<=0?"reste-ok":"reste-warn")+"'>"+st.reste+"</strong></div>";
+    html+="<div class='sum-box'><span>Avancement</span><strong>"+st.pct+"%</strong></div>";
+    html+="</div>";
+
+    html+="<button class='btn btn-small btn-blue' onclick='openProductModal(\""+il.id+"\")'>+ Produit</button>";
+
+    for(var j=0;j<il.produits.length;j++){
+      var pr=il.produits[j];
+      var reste=Number(pr.total||0)-Number(pr.pose||0);
+      var cls=reste<=0 ? "reste-ok" : "reste-warn";
+      html+="<div class='product'>";
+      html+="<div class='product-grid'>";
+      html+="<div><b>"+esc(pr.nom)+"</b><div class='muted'>Unité : "+esc(pr.unite||"u")+"</div></div>";
+      html+="<div class='kpi'><span>Prévu</span><input class='total' type='number' inputmode='decimal' value='"+esc(pr.total)+"' onchange='setTotal(\""+il.id+"\",\""+pr.id+"\",this.value)'></div>";
+      html+="<div class='kpi'><span>Posé</span><input class='qty' type='number' inputmode='decimal' value='"+esc(pr.pose)+"' onchange='setPose(\""+il.id+"\",\""+pr.id+"\",this.value)'></div>";
+      html+="<div class='kpi'><span>Reste</span><strong class='"+cls+"'>"+reste+" "+esc(pr.unite||"")+"</strong></div>";
+      html+="</div>";
+      html+="<div class='row' style='margin-top:8px'><button class='btn btn-small btn-light' onclick='editProduct(\""+il.id+"\",\""+pr.id+"\")'>Modifier</button><button class='btn btn-small btn-red' onclick='deleteProduct(\""+il.id+"\",\""+pr.id+"\")'>Supprimer</button></div>";
+      html+="</div>";
+    }
+    html+="</div>";
+  }
+  byId("screenProject").innerHTML=html;
+  renderHeader();
+}
+function showProject(){
+  setScreen("screenProject");
+  renderProject();
+}
+function showProjects(){
+  var html="<div class='card'><div class='title'>Mes projets</div><div class='muted'>Clique sur un projet pour l’ouvrir.</div>";
+  for(var i=0;i<db.projects.length;i++){
+    var p=db.projects[i];
+    html+="<div class='project-item'>";
+    html+="<div><b>"+esc(p.nom)+"</b><div class='muted'>"+p.ilots.length+" îlot(s)</div></div>";
+    html+="<div class='row'><button class='btn btn-small btn-blue' onclick='openProject(\""+p.id+"\")'>Ouvrir</button><button class='btn btn-small btn-light' onclick='duplicateProject(\""+p.id+"\")'>Copier</button><button class='btn btn-small btn-red' onclick='deleteProject(\""+p.id+"\")'>Suppr.</button></div>";
+    html+="</div>";
+  }
+  html+="</div>";
+  byId("screenProjects").innerHTML=html;
+  setScreen("screenProjects");
+  renderHeader();
+}
+function openProject(id){currentId=id;saveDB();showProject();}
+function newProject(){
+  var nom=prompt("Nom du projet","Nouveau projet");
+  if(!nom)return;
+  var p=defaultProject();
+  p.id=uid();
+  p.nom=nom;
+  p.client=prompt("Client","")||"";
+  p.chantier=prompt("Chantier / adresse","")||"";
+  db.projects.push(p);
+  currentId=p.id;
+  saveDB();
+  showProject();
+}
+function editProject(){
+  var p=activeProject();
+  var nom=prompt("Nom du projet",p.nom); if(!nom)return;
+  p.nom=nom;
+  p.client=prompt("Client",p.client||"")||"";
+  p.chantier=prompt("Chantier / adresse",p.chantier||"")||"";
+  saveDB(); renderProject();
+}
+function duplicateProject(id){
+  var p=null;
+  for(var i=0;i<db.projects.length;i++){if(db.projects[i].id===id)p=db.projects[i];}
+  if(!p)return;
+  var c=JSON.parse(JSON.stringify(p));
+  c.id=uid(); c.nom=p.nom+" - copie";
+  for(var a=0;a<c.ilots.length;a++){
+    c.ilots[a].id=uid();
+    for(var b=0;b<c.ilots[a].produits.length;b++){c.ilots[a].produits[b].id=uid();}
+  }
+  db.projects.push(c); currentId=c.id; saveDB(); showProjects();
+}
+function deleteProject(id){
+  if(db.projects.length<2){alert("Il faut garder au moins un projet.");return;}
+  if(!confirm("Supprimer ce projet ?"))return;
+  var arr=[];
+  for(var i=0;i<db.projects.length;i++){if(db.projects[i].id!==id)arr.push(db.projects[i]);}
+  db.projects=arr; currentId=db.projects[0].id; saveDB(); showProjects();
+}
+function addIlot(){
+  var p=activeProject();
+  var nom=prompt("Nom de l’îlot","Ilot "+(p.ilots.length+1));
+  if(!nom)return;
+  p.ilots.push({id:uid(),nom:nom,produits:[
+    {id:uid(),nom:"Gouttière",total:0,unite:"ml",pose:0},
+    {id:uid(),nom:"Descentes",total:0,unite:"u",pose:0},
+    {id:uid(),nom:"Coudes",total:0,unite:"u",pose:0}
+  ]});
+  saveDB(); renderProject();
+}
+function findIlot(ilid){
+  var p=activeProject();
+  for(var i=0;i<p.ilots.length;i++){if(p.ilots[i].id===ilid)return p.ilots[i];}
+  return null;
+}
+function findProduct(ilid,prid){
+  var il=findIlot(ilid); if(!il)return null;
+  for(var i=0;i<il.produits.length;i++){if(il.produits[i].id===prid)return il.produits[i];}
+  return null;
+}
+function renameIlot(id){
+  var il=findIlot(id); if(!il)return;
+  var nom=prompt("Nom de l’îlot",il.nom);
+  if(!nom)return;
+  il.nom=nom; saveDB(); renderProject();
+}
+function deleteIlot(id){
+  var p=activeProject();
+  if(p.ilots.length<2){alert("Il faut garder au moins un îlot.");return;}
+  if(!confirm("Supprimer cet îlot ?"))return;
+  var arr=[];
+  for(var i=0;i<p.ilots.length;i++){if(p.ilots[i].id!==id)arr.push(p.ilots[i]);}
+  p.ilots=arr; saveDB(); renderProject();
+}
+function openProductModal(ilid){
+  byId("modalIlotId").value=ilid;
+  byId("modalProductName").value="";
+  byId("modalProductTotal").value="0";
+  byId("modalProductUnit").value="u";
+  byId("productModal").style.display="block";
+  setTimeout(function(){byId("modalProductName").focus()},100);
+}
+function closeProductModal(){
+  byId("productModal").style.display="none";
+}
+function confirmAddProduct(){
+  var ilid=byId("modalIlotId").value;
+  var il=findIlot(ilid); if(!il)return;
+  var nom=byId("modalProductName").value;
+  if(!nom){alert("Indique le nom du produit.");return;}
+  var total=Number(byId("modalProductTotal").value||0);
+  if(total<0)total=0;
+  var unite=byId("modalProductUnit").value||"u";
+  il.produits.push({id:uid(),nom:nom,total:total,unite:unite,pose:0});
+  closeProductModal();
+  saveDB(); renderProject();
+}
+function addProduct(ilid){
+  openProductModal(ilid);
+}
+function editProduct(ilid,prid){
+  var pr=findProduct(ilid,prid); if(!pr)return;
+  var nom=prompt("Nom du produit",pr.nom); if(!nom)return;
+  pr.nom=nom;
+  pr.total=Number(prompt("Quantité prévue",pr.total)||0);
+  pr.unite=prompt("Unité",pr.unite||"u")||"u";
+  if(Number(pr.pose)>Number(pr.total))pr.pose=Number(pr.total);
+  saveDB(); renderProject();
+}
+function deleteProduct(ilid,prid){
+  if(!confirm("Supprimer ce produit ?"))return;
+  var il=findIlot(ilid); if(!il)return;
+  var arr=[];
+  for(var i=0;i<il.produits.length;i++){if(il.produits[i].id!==prid)arr.push(il.produits[i]);}
+  il.produits=arr; saveDB(); renderProject();
+}
+function setPose(ilid,prid,v){
+  var pr=findProduct(ilid,prid); if(!pr)return;
+  v=Number(v||0); if(v<0)v=0; if(v>Number(pr.total||0))v=Number(pr.total||0);
+  pr.pose=v; saveDB(); renderProject();
+}
+function setTotal(ilid,prid,v){
+  var pr=findProduct(ilid,prid); if(!pr)return;
+  v=Number(v||0); if(v<0)v=0;
+  pr.total=v; if(Number(pr.pose)>v)pr.pose=v;
+  saveDB(); renderProject();
+}
+function showSave(){
+  var html="<div class='card'><div class='title'>Sauvegarde</div>";
+  html+="<p class='muted'>Export : sauvegarde un fichier JSON. Import : recharge une sauvegarde.</p>";
+  html+="<div class='row'>";
+  html+="<button class='btn btn-blue' onclick='exportJSON()'>Exporter JSON</button>";
+  html+="<label class='btn btn-light'>Importer JSON<input type='file' accept='.json,application/json' style='display:none' onchange='importJSON(event)'></label>";
+  html+="<button class='btn btn-red' onclick='resetAll()'>Reset complet</button>";
+  html+="</div></div>";
+  byId("screenSave").innerHTML=html;
+  setScreen("screenSave");
+}
+function exportJSON(){
+  var data=JSON.stringify(db,null,2);
+  var blob=new Blob([data],{type:"application/json"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");
+  a.href=url; a.download="sauvegarde-suivi-chantier.json"; a.click();
+  setTimeout(function(){URL.revokeObjectURL(url)},1000);
+}
+function importJSON(evt){
+  var f=evt.target.files[0]; if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var imported=JSON.parse(r.result);
+      if(!imported.projects || !imported.projects.length)throw new Error("Fichier non compatible");
+      db=imported; currentId=db.projects[0].id; saveDB(); showProject();
+    }catch(e){alert("Import impossible : "+e.message);}
+  };
+  r.readAsText(f);
+}
+function resetAll(){
+  if(!confirm("Tout effacer et recréer Projet F&P ?"))return;
+  localStorage.removeItem(KEY);
+  localStorage.removeItem(KEY+"_current");
+  loadDB(); showProject();
+}
+function flashSaved(){
+  var old=byId("headerSub").innerHTML;
+  byId("headerSub").innerHTML="Sauvegardé ✓";
+  setTimeout(function(){renderHeader()},900);
 }
 
-function render(){
- let html="<div class='card'><b>Projet F&P</b><br><br>";
- Object.keys(template).forEach(ilot=>{
-  html+="<b>"+ilot+"</b><br>";
-
-  template[ilot].forEach((p,i)=>{
-    let key=ilot+"_"+i;
-    let total=p[1];
-    let pose=Number(db[key]||0);
-    let reste=total-pose;
-
-    html+=`
-    ${p[0]} prévu ${total}<br>
-    posé <input value="${pose}" onchange="update('${key}',this.value,${total})">
-    reste <b id="r_${key}">${reste}</b><br><br>`;
-  });
-
-  html+=`<button class="add" onclick="addProduct('${ilot}')">+ Ajouter produit</button><hr>`;
- });
-
- html+="</div>";
- document.getElementById("app").innerHTML=html;
+try{
+  loadDB();
+  showProject();
+}catch(e){
+  debug("ERREUR APPLICATION : "+esc(e.message)+"<br>Utilise le bouton reset ou recharge Safari.");
 }
-
-function update(key,val,total){
- let v=Number(val||0);
- if(v<0)v=0;
- if(v>total)v=total;
- db[key]=v;
- saveAll();
- document.getElementById("r_"+key).innerText=total-v;
-}
-
-function addProduct(ilot){
- let name=prompt("Nom du produit ?");
- if(!name)return;
- let qty=prompt("Quantité prévue ?");
- qty=Number(qty||0);
- if(!qty)return;
-
- template[ilot].push([name,qty]);
- saveAll();
- render();
-}
-
-render();
 </script>
-
 </body>
 </html>
