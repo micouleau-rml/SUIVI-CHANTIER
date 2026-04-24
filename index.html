@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Suivi Chantier V7.5</title>
+<title>RML Gouttière Alu - Suivi Chantier V7.6</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -273,6 +273,89 @@ input.name{min-width:150px;flex:1}
     margin-bottom:12px !important;
   }
   .rml-brand-title{font-size:23px !important}
+  .rml-brand-by{font-size:14px !important}
+  .rml-brand-activity{font-size:12.5px !important}
+}
+
+
+/* === V7.6 HEADER RML - LOGO NON MASQUÉ === */
+.header{
+  background:#ffffff !important;
+  color:#111827 !important;
+  padding:24px 12px 22px !important;
+  box-shadow:0 2px 10px rgba(0,0,0,.12) !important;
+  border-bottom:1px solid #e5e7eb !important;
+}
+.rml-brand{
+  max-width:900px !important;
+  margin:0 auto !important;
+  text-align:center !important;
+  padding:0 12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+}
+.rml-brand img{
+  position:static !important;
+  display:block !important;
+  width:auto !important;
+  height:78px !important;
+  max-width:180px !important;
+  max-height:78px !important;
+  object-fit:contain !important;
+  margin:0 auto 18px auto !important;
+  padding:0 !important;
+  flex:0 0 auto !important;
+}
+.rml-brand-title{
+  display:block !important;
+  position:static !important;
+  font-size:30px !important;
+  line-height:1.05 !important;
+  font-weight:900 !important;
+  letter-spacing:1px !important;
+  margin:0 !important;
+  padding:0 !important;
+  clear:both !important;
+}
+.rml-brand-by{
+  display:block !important;
+  position:static !important;
+  font-size:16px !important;
+  font-weight:800 !important;
+  margin-top:7px !important;
+  padding:0 !important;
+}
+.rml-brand-activity{
+  display:block !important;
+  position:static !important;
+  font-size:14px !important;
+  color:#374151 !important;
+  margin-top:6px !important;
+  line-height:1.35 !important;
+  padding:0 !important;
+}
+.rml-app-sub{
+  display:block !important;
+  position:static !important;
+  font-size:12px !important;
+  color:#64748b !important;
+  margin-top:6px !important;
+}
+.container{
+  max-width:900px !important;
+  margin:0 auto !important;
+  padding:12px !important;
+}
+@media(max-width:520px){
+  .header{padding:20px 8px 18px !important}
+  .rml-brand img{
+    height:68px !important;
+    max-height:68px !important;
+    max-width:150px !important;
+    margin-bottom:22px !important;
+  }
+  .rml-brand-title{font-size:24px !important}
   .rml-brand-by{font-size:14px !important}
   .rml-brand-activity{font-size:12.5px !important}
 }
