@@ -155,6 +155,7 @@ input.name{min-width:150px;flex:1}
   object-fit:contain;
 }
 .rml-brand-title{
+  margin-top:10px !important;
   font-size:30px;
   line-height:1;
   font-weight:900;
@@ -203,7 +204,8 @@ input.name{min-width:150px;flex:1}
   font-size:17px;
 }
 @media(max-width:520px){
-  .rml-brand-title{font-size:24px}
+  .rml-brand-title{
+  margin-top:10px !important;font-size:24px}
   .rml-brand-by{font-size:15px}
   .rml-brand-activity{font-size:13px}
   .rml-brand img{max-width:95px;max-height:62px}
@@ -236,6 +238,7 @@ input.name{min-width:150px;flex:1}
   object-fit:contain !important;
 }
 .rml-brand-title{
+  margin-top:10px !important;
   font-size:28px !important;
   line-height:1.05 !important;
   font-weight:900 !important;
@@ -272,7 +275,8 @@ input.name{min-width:150px;flex:1}
     max-height:64px !important;
     margin-bottom:12px !important;
   }
-  .rml-brand-title{font-size:23px !important}
+  .rml-brand-title{
+  margin-top:10px !important;font-size:23px !important}
   .rml-brand-by{font-size:14px !important}
   .rml-brand-activity{font-size:12.5px !important}
 }
@@ -308,6 +312,7 @@ input.name{min-width:150px;flex:1}
   flex:0 0 auto !important;
 }
 .rml-brand-title{
+  margin-top:10px !important;
   display:block !important;
   position:static !important;
   font-size:30px !important;
@@ -355,7 +360,8 @@ input.name{min-width:150px;flex:1}
     max-width:150px !important;
     margin-bottom:22px !important;
   }
-  .rml-brand-title{font-size:24px !important}
+  .rml-brand-title{
+  margin-top:10px !important;font-size:24px !important}
   .rml-brand-by{font-size:14px !important}
   .rml-brand-activity{font-size:12.5px !important}
 }
@@ -366,11 +372,12 @@ input.name{min-width:150px;flex:1}
   display:block !important;
   position:relative !important;
   z-index:2 !important;
-  margin:0 auto 40px auto !important;
+  margin:0 auto 50px auto !important;
   height:70px !important;
 }
 
 .rml-brand-title{
+  margin-top:10px !important;
   position:relative !important;
   z-index:1 !important;
   margin-top:0 !important;
@@ -434,7 +441,6 @@ function debug(msg){
 function defaultProject(){
   return {
     id:uid(),
-    nom:"Projet F&P",
     client:"",
     chantier:"",
     ilots:[
@@ -720,7 +726,6 @@ function importJSON(evt){
   r.readAsText(f);
 }
 function resetAll(){
-  if(!confirm("Tout effacer et recréer Projet F&P ?"))return;
   localStorage.removeItem(KEY);
   localStorage.removeItem(KEY+"_current");
   loadDB(); showProject();
