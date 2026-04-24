@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suivi chantier V7 Pro iPhone</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;padding:0;min-height:100%;font-family:Arial,-apple-system,BlinkMacSystemFont,sans-serif;background:#eef2f3;color:#111827}body{padding-bottom:95px}.header{position:sticky;top:0;z-index:10;background:#1f2937;color:white;padding:14px}.header b{display:block;font-size:18px}.header span{font-size:12px;opacity:.85}.wrap{padding:10px;max-width:900px;margin:auto}.card{background:white;border-radius:14px;margin:10px 0;padding:14px;box-shadow:0 4px 14px rgba(0,0,0,.08)}button{border:0;border-radius:10px;padding:10px 12px;margin:3px;font-weight:bold;background:#e5e7eb;color:#111827}button.blue{background:#2563eb;color:white}button.green{background:#16a34a;color:white}button.red{background:#dc2626;color:white}button.orange{background:#f97316;color:white}input,select{width:100%;font-size:16px;padding:10px;border:1px solid #d1d5db;border-radius:10px}.row{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.small{font-size:12px;padding:8px 9px}.muted{font-size:12px;color:#6b7280}.title{font-size:18px;font-weight:bold}.ilot{font-size:17px;font-weight:bold;border-bottom:1px solid #e5e7eb;padding-bottom:8px;margin-bottom:8px}.prod{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:9px 0}.prodname{font-weight:bold}.qty{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:8px}.box{background:#f9fafb;border-radius:10px;padding:7px}.box label{display:block;font-size:11px;font-weight:bold;color:#6b7280;margin-bottom:4px}.box b{font-size:18px}.barbg{height:8px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}.bar{height:8px;background:#2563eb;width:0}.toolbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:white;border-top:1px solid #ddd;padding:8px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 14px rgba(0,0,0,.12)}.toolbar div{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;max-width:900px;margin:auto}.toolbar button{font-size:12px;margin:0;padding:10px 4px}.hidden{display:none}.debug{background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;font-size:12px;white-space:pre-wrap}.ok{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}.danger{background:#fff1f2;border:1px dashed #fca5a5}.center{text-align:center}.pill{display:inline-block;border-radius:999px;background:#eef2ff;color:#1d4ed8;padding:4px 8px;font-size:12px;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="header"><b>Suivi chantier V7 Pro</b><span>SARL Micouleau JC · version iPhone sécurisée</span></div>
+<noscript><div class="wrap"><div class="card debug">JavaScript est désactivé : l'application ne peut pas fonctionner.</div></div></noscript>
+<div class="wrap">
+  <div id="debug" class="card debug">Chargement de l'application...</div>
+  <div id="app"></div>
+</div>
+<div class="toolbar"><div>
+  <button onclick="showProjects()">Projets</button>
+  <button class="blue" onclick="newProject()">+ Projet</button>
+  <button onclick="showBackup()">Sauvegarde</button>
+  <button class="green" onclick="saveDB();flash('Enregistré')">Enregistrer</button>
+</div></div>
+<script>
+(function(){
+var KEY="rml_v7_pro_iphone_safe_v1";
+var db=null;
+var currentId=null;
+var screen="projects";
+function byId(id){return document.getElementById(id)}
+function log(msg,isOk){var d=byId('debug'); if(!d)return; d.className='card '+(isOk?'debug ok':'debug'); d.innerHTML=msg;}
+function esc(s){s=String(s===undefined||s===null?'':s);return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function uid(){return 'id'+String(new Date().getTime())+String(Math.floor(Math.random()*1000000))}
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function defaultProject(){return {id:uid(),nom:'Projet F&P',client:'',chantier:'',ilots:[{id:uid(),nom:'Ilot 1',produits:[{id:uid(),nom:'Gouttière',total:71,unite:'ml',pose:0},{id:uid(),nom:'Descentes',total:30,unite:'unité',pose:0},{id:uid(),nom:'Coudes',total:14,unite:'unité',pose:0}]},{id:uid(),nom:'Ilot 2',produits:[{id:uid(),nom:'Gouttière',total:150,unite:'ml',pose:0},{id:uid(),nom:'Descentes',total:69,unite:'unité',pose:0},{id:uid(),nom:'Coudes',total:20,unite:'unité',pose:0}]}]}}
+function storageOK(){try{localStorage.setItem('test_v7','ok');localStorage.removeItem('test_v7');return true}catch(e){return false}}
+function loadDB(){
+  var ok=storageOK();
+  if(!ok){db={projects:[defaultProject()]};currentId=db.projects[0].id;log('ATTENTION : Safari bloque la sauvegarde locale. Ouvre le fichier dans Safari normal, pas en navigation privée.',false);return}
+  var raw=null;
+  try{raw=localStorage.getItem(KEY)}catch(e){raw=null;log('Erreur lecture stockage : '+e.message,false)}
+  if(raw){try{db=JSON.parse(raw)}catch(e){db=null;localStorage.removeItem(KEY);log('Ancienne sauvegarde corrompue supprimée. Projet F&P recréé.',false)}}
+  if(!db || !db.projects || !db.projects.length){db={projects:[defaultProject()]};saveDB()}
+  currentId=db.currentId||db.projects[0].id;
+  log('Application chargée OK · projets : '+db.projects.length+' · stockage iPhone OK',true)
+}
+window.saveDB=function(){try{if(db){db.currentId=currentId;localStorage.setItem(KEY,JSON.stringify(db));}}catch(e){alert('Sauvegarde impossible sur cet iPhone : '+e.message)}}
+function activeProject(){for(var i=0;i<db.projects.length;i++){if(db.projects[i].id===currentId)return db.projects[i]}return db.projects[0]}
+function stats(p){var total=0,pose=0;for(var i=0;i<p.ilots.length;i++){var prods=p.ilots[i].produits;for(var j=0;j<prods.length;j++){total+=Number(prods[j].total||0);pose+=Number(prods[j].pose||0)}}var reste=Math.max(0,total-pose);var pct=total>0?Math.round((pose/total)*100):0;return {total:round(total),pose:round(pose),reste:round(reste),pct:pct}}
+function round(n){return Math.round((Number(n)+0.0000001)*100)/100}
+window.flash=function(m){var old=byId('debug').innerHTML;log(m,true);setTimeout(function(){log(old,true)},1000)}
+window.showProjects=function(){screen='projects';var html='';html+='<div class="card"><div class="title">Mes projets</div><div class="muted">Clique sur un projet pour l’ouvrir.</div></div>';for(var i=0;i<db.projects.length;i++){var p=db.projects[i];var s=stats(p);html+='<div class="card" onclick="openProject(\''+p.id+'\')"><div class="title">'+esc(p.nom)+'</div><div class="muted">'+esc(p.client||'Client non renseigné')+'</div><div class="qty"><div class="box center"><label>Total</label><b>'+s.total+'</b></div><div class="box center"><label>Posé</label><b>'+s.pose+'</b></div><div class="box center"><label>Reste</label><b>'+s.reste+'</b></div></div><div class="barbg"><div class="bar" style="width:'+s.pct+'%"></div></div><div class="row" style="margin-top:10px"><button class="blue small" onclick="event.stopPropagation();openProject(\''+p.id+'\')">Ouvrir</button><button class="small" onclick="event.stopPropagation();duplicateProject(\''+p.id+'\')">Dupliquer</button><button class="red small" onclick="event.stopPropagation();deleteProject(\''+p.id+'\')">Supprimer</button></div></div>'}byId('app').innerHTML=html;window.scrollTo(0,0)}
+window.openProject=function(id){currentId=id;saveDB();renderProject();window.scrollTo(0,0)}
+function renderProject(){var p=activeProject();var s=stats(p);var html='<div class="card"><div class="title">'+esc(p.nom)+'</div><div class="muted">'+esc(p.client||'Client non renseigné')+' '+esc(p.chantier||'')+'</div><div class="qty"><div class="box center"><label>Total</label><b>'+s.total+'</b></div><div class="box center"><label>Posé</label><b>'+s.pose+'</b></div><div class="box center"><label>Reste</label><b>'+s.reste+'</b></div></div><div class="barbg"><div class="bar" style="width:'+s.pct+'%"></div></div><p><button class="blue small" onclick="addIlot()">+ Îlot</button><button class="small" onclick="editProject()">Modifier projet</button></p></div>';for(var i=0;i<p.ilots.length;i++){var il=p.ilots[i];html+='<div class="card"><div class="ilot">'+esc(il.nom)+' <button class="small" onclick="renameIlot(\''+il.id+'\')">Renommer</button></div>';for(var j=0;j<il.produits.length;j++){var pr=il.produits[j];var total=Number(pr.total||0);var pose=Number(pr.pose||0);var reste=Math.max(0,total-pose);var pct=total>0?Math.round((pose/total)*100):0;html+='<div class="prod"><div class="prodname">'+esc(pr.nom)+' <span class="pill">'+pct+'%</span></div><div class="muted">Unité : '+esc(pr.unite)+'</div><div class="qty"><div class="box"><label>Prévu</label><input type="number" inputmode="decimal" value="'+total+'" onchange="setTotal(\''+il.id+'\',\''+pr.id+'\',this.value)"></div><div class="box"><label>Posé</label><input type="number" inputmode="decimal" value="'+pose+'" onchange="setPose(\''+il.id+'\',\''+pr.id+'\',this.value)"></div><div class="box"><label>Reste</label><b>'+round(reste)+'</b></div></div><div class="barbg"><div class="bar" style="width:'+pct+'%"></div></div><p><button class="small" onclick="addPose(\''+il.id+'\',\''+pr.id+'\',1)">+1</button><button class="small" onclick="addPose(\''+il.id+'\',\''+pr.id+'\',5)">+5</button><button class="small" onclick="editProduct(\''+il.id+'\',\''+pr.id+'\')">Modifier</button><button class="red small" onclick="deleteProduct(\''+il.id+'\',\''+pr.id+'\')">Supprimer</button></p></div>'}html+='<button class="blue" onclick="addProduct(\''+il.id+'\')">+ Produit</button> <button class="red" onclick="deleteIlot(\''+il.id+'\')">Supprimer îlot</button></div>'}byId('app').innerHTML=html}
+function findIlot(id){var p=activeProject();for(var i=0;i<p.ilots.length;i++){if(p.ilots[i].id===id)return p.ilots[i]}return null}
+function findProd(iid,pid){var il=findIlot(iid);if(!il)return null;for(var i=0;i<il.produits.length;i++){if(il.produits[i].id===pid)return il.produits[i]}return null}
+window.setPose=function(iid,pid,v){var pr=findProd(iid,pid);if(!pr)return;v=Number(v||0);if(v<0)v=0;if(v>Number(pr.total||0))v=Number(pr.total||0);pr.pose=round(v);saveDB();renderProject()}
+window.setTotal=function(iid,pid,v){var pr=findProd(iid,pid);if(!pr)return;v=Number(v||0);if(v<0)v=0;pr.total=round(v);if(Number(pr.pose||0)>v)pr.pose=v;saveDB();renderProject()}
+window.addPose=function(iid,pid,n){var pr=findProd(iid,pid);if(!pr)return;window.setPose(iid,pid,Number(pr.pose||0)+n)}
+window.newProject=function(){var nom=prompt('Nom du projet','Nouveau projet');if(!nom)return;var p=defaultProject();p.nom=nom;p.client=prompt('Client','')||'';p.chantier=prompt('Chantier / adresse','')||'';db.projects.unshift(p);currentId=p.id;saveDB();renderProject()}
+window.editProject=function(){var p=activeProject();var nom=prompt('Nom du projet',p.nom);if(!nom)return;p.nom=nom;p.client=prompt('Client',p.client||'')||'';p.chantier=prompt('Chantier / adresse',p.chantier||'')||'';saveDB();renderProject()}
+window.duplicateProject=function(id){for(var i=0;i<db.projects.length;i++){if(db.projects[i].id===id){var p=clone(db.projects[i]);p.id=uid();p.nom=p.nom+' - copie';for(var a=0;a<p.ilots.length;a++){p.ilots[a].id=uid();for(var b=0;b<p.ilots[a].produits.length;b++){p.ilots[a].produits[b].id=uid()}}db.projects.unshift(p);currentId=p.id;saveDB();showProjects();return}}}
+window.deleteProject=function(id){if(db.projects.length<2){alert('Il faut garder au moins un projet.');return}if(!confirm('Supprimer ce projet ?'))return;var arr=[];for(var i=0;i<db.projects.length;i++){if(db.projects[i].id!==id)arr.push(db.projects[i])}db.projects=arr;currentId=db.projects[0].id;saveDB();showProjects()}
+window.addIlot=function(){var p=activeProject();var nom=prompt('Nom de l’îlot','Nouvel îlot');if(!nom)return;p.ilots.push({id:uid(),nom:nom,produits:[]});saveDB();renderProject()}
+window.renameIlot=function(id){var il=findIlot(id);if(!il)return;var nom=prompt('Nom de l’îlot',il.nom);if(!nom)return;il.nom=nom;saveDB();renderProject()}
+window.deleteIlot=function(id){if(!confirm('Supprimer cet îlot ?'))return;var p=activeProject();var arr=[];for(var i=0;i<p.ilots.length;i++){if(p.ilots[i].id!==id)arr.push(p.ilots[i])}p.ilots=arr;saveDB();renderProject()}
+window.addProduct=function(iid){var il=findIlot(iid);if(!il)return;var nom=prompt('Nom du produit','Produit');if(!nom)return;var total=Number(prompt('Quantité prévue','0')||0);var unite=prompt('Unité','unité')||'unité';il.produits.push({id:uid(),nom:nom,total:round(Math.max(0,total)),unite:unite,pose:0});saveDB();renderProject()}
+window.editProduct=function(iid,pid){var pr=findProd(iid,pid);if(!pr)return;var nom=prompt('Nom du produit',pr.nom);if(!nom)return;pr.nom=nom;pr.unite=prompt('Unité',pr.unite||'unité')||'unité';saveDB();renderProject()}
+window.deleteProduct=function(iid,pid){if(!confirm('Supprimer ce produit ?'))return;var il=findIlot(iid);var arr=[];for(var i=0;i<il.produits.length;i++){if(il.produits[i].id!==pid)arr.push(il.produits[i])}il.produits=arr;saveDB();renderProject()}
+window.showBackup=function(){var html='<div class="card"><div class="title">Sauvegarde</div><p class="muted">Utilise ces boutons si l’iPhone affiche vide ou pour transférer entre appareils.</p><button class="green" onclick="exportJSON()">Exporter sauvegarde</button><p><input type="file" id="fileInput" accept="application/json" onchange="importJSON(event)"></p></div><div class="card danger"><div class="title">Dépannage iPhone</div><button class="orange" onclick="location.reload()">Recharger</button><button class="red" onclick="resetAll()">Reset complet</button><p class="muted">Si l’écran est vide : ouvre le lien dans Safari, puis ajoute à l’écran d’accueil uniquement après vérification.</p></div>';byId('app').innerHTML=html}
+window.exportJSON=function(){var data=JSON.stringify(db,null,2);var blob=new Blob([data],{type:'application/json'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='sauvegarde_v7_pro.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(url)},1000)}
+window.importJSON=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var n=JSON.parse(r.result);if(!n.projects||!n.projects.length)throw new Error('format');db=n;currentId=db.currentId||db.projects[0].id;saveDB();showProjects()}catch(err){alert('Fichier de sauvegarde invalide')}};r.readAsText(f)}
+window.resetAll=function(){if(!confirm('Tout effacer et recréer Projet F&P ?'))return;try{localStorage.removeItem(KEY)}catch(e){}db={projects:[defaultProject()]};currentId=db.projects[0].id;saveDB();showProjects();log('Reset effectué · projet F&P recréé',true)}
+try{loadDB();showProjects()}catch(e){log('ERREUR APPLICATION : '+e.message+'\nRecharge Safari ou utilise le bouton reset après ouverture.',false)}
+})();
+</script>
+</body>
+</html>
