@@ -303,7 +303,7 @@ input.name{min-width:150px;flex:1}
   max-width:180px !important;
   max-height:78px !important;
   object-fit:contain !important;
-  margin:0 auto 18px auto !important;
+  margin:0 auto 26px auto !important;
   padding:0 !important;
   flex:0 0 auto !important;
 }
@@ -331,7 +331,7 @@ input.name{min-width:150px;flex:1}
   position:static !important;
   font-size:14px !important;
   color:#374151 !important;
-  margin-top:6px !important;
+  margin-top:9px !important;
   line-height:1.35 !important;
   padding:0 !important;
 }
@@ -340,7 +340,7 @@ input.name{min-width:150px;flex:1}
   position:static !important;
   font-size:12px !important;
   color:#64748b !important;
-  margin-top:6px !important;
+  margin-top:9px !important;
 }
 .container{
   max-width:900px !important;
@@ -359,6 +359,29 @@ input.name{min-width:150px;flex:1}
   .rml-brand-by{font-size:14px !important}
   .rml-brand-activity{font-size:12.5px !important}
 }
+
+
+/* FIX FINAL LOGO CHEVAUCHEMENT */
+.rml-brand img{
+  display:block !important;
+  position:relative !important;
+  z-index:2 !important;
+  margin:0 auto 40px auto !important;
+  height:70px !important;
+}
+
+.rml-brand-title{
+  position:relative !important;
+  z-index:1 !important;
+  margin-top:0 !important;
+}
+
+.rml-brand-by,
+.rml-brand-activity{
+  position:relative !important;
+  z-index:1 !important;
+}
+
 
 </style>
 </head>
