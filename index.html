@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Suivi Chantier V8</title>
+<title>RML Gouttière Alu - Chantier Pro V9</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -434,6 +434,124 @@ input.name{min-width:150px;flex:1}
   .rml-brand-activity{font-size:12.5px !important}
 }
 
+
+/* ALIGNEMENT HEADER AVEC ILOTS */
+.header{
+  padding-left:0 !important;
+  padding-right:0 !important;
+}
+
+.rml-brand{
+  max-width:900px !important;
+  margin:0 auto !important;
+  padding:0 12px !important;
+}
+
+.container{
+  max-width:900px !important;
+  margin:0 auto !important;
+  padding:12px !important;
+}
+
+/* Ajout wrapper global si absent */
+body{
+  margin:0 !important;
+}
+
+
+/* === VERSION CHANTIER PRO V9 === */
+.global-progress-card{
+  background:#ffffff;
+  border-radius:18px;
+  padding:14px;
+  margin:0 0 12px 0;
+  box-shadow:0 6px 18px rgba(15,23,42,.08);
+  border:1px solid rgba(226,232,240,.9);
+}
+.global-progress-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+.global-progress-title{
+  font-weight:900;
+  font-size:17px;
+}
+.global-progress-pct{
+  font-weight:900;
+  font-size:22px;
+  color:#16a34a;
+}
+.progress-bar{
+  height:13px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:#16a34a;
+  border-radius:999px;
+  transition:width .2s ease;
+}
+.progress-mini{
+  height:9px;
+  background:#e5e7eb;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:6px;
+  min-width:120px;
+}
+.progress-mini-fill{
+  height:100%;
+  background:#16a34a;
+  border-radius:999px;
+}
+.chantier-tools{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.btn-orange{
+  background:#f97316;
+  color:white;
+}
+.locked input.total,
+.locked .btn-red,
+.locked .btn-light[onclick^="editProduct"],
+.locked .btn-light[onclick^="renameIlot"],
+.locked .btn-red[onclick^="deleteIlot"]{
+  pointer-events:none;
+  opacity:.45;
+}
+.lock-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:#ecfdf5;
+  color:#166534;
+  border:1px solid #bbf7d0;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:900;
+}
+.pdf-note{
+  font-size:12px;
+  color:#64748b;
+  margin-top:6px;
+}
+@media print{
+  .footer,.btn,.chantier-tools{display:none!important}
+  body{background:white!important;padding-bottom:0!important}
+  .card,.global-progress-card{box-shadow:none!important;break-inside:avoid}
+  .header{position:static!important}
+}
+
 </style>
 </head>
 <body>
@@ -470,6 +588,7 @@ input.name{min-width:150px;flex:1}
 var KEY="suivi_chantier_v7_pro_restore";
 var db=null;
 var currentId=null;
+var chantierLocked=false;
 
 function uid(){
   return "id"+String(new Date().getTime())+String(Math.floor(Math.random()*1000000));
@@ -559,10 +678,47 @@ function ilotStats(il){
   var pct=total>0 ? Math.round((pose/total)*100) : 0;
   return {total:total,pose:pose,reste:reste,pct:pct};
 }
+function projectStats(p){
+  var total=0, pose=0;
+  if(!p || !p.ilots)return {total:0,pose:0,reste:0,pct:0};
+  for(var i=0;i<p.ilots.length;i++){
+    var il=p.ilots[i];
+    for(var j=0;j<il.produits.length;j++){
+      total+=Number(il.produits[j].total||0);
+      pose+=Number(il.produits[j].pose||0);
+    }
+  }
+  var reste=total-pose;
+  var pct=total>0 ? Math.round((pose/total)*100) : 0;
+  return {total:total,pose:pose,reste:reste,pct:pct};
+}
+function ilotStats(il){
+  var total=0, pose=0;
+  for(var x=0;x<il.produits.length;x++){
+    total+=Number(il.produits[x].total||0);
+    pose+=Number(il.produits[x].pose||0);
+  }
+  var reste=total-pose;
+  var pct=total>0 ? Math.round((pose/total)*100) : 0;
+  return {total:total,pose:pose,reste:reste,pct:pct};
+}
 function renderProject(){
   var p=activeProject();
   if(!p){byId("screenProject").innerHTML="<div class='card'>Aucun projet</div>";return;}
+  var ps=projectStats(p);
   var html="";
+  html+="<div class='global-progress-card'>";
+  html+="<div class='global-progress-head'><div><div class='global-progress-title'>Avancement global chantier</div><div class='muted'>"+esc(p.nom)+" · "+p.ilots.length+" îlot(s)</div></div><div class='global-progress-pct'>"+ps.pct+"%</div></div>";
+  html+="<div class='progress-bar'><div class='progress-fill' style='width:"+ps.pct+"%'></div></div>";
+  html+="<div class='muted' style='margin-top:8px'>Prévu : "+ps.total+" · Posé : "+ps.pose+" · Reste : "+ps.reste+"</div>";
+  html+="<div class='chantier-tools'>";
+  html+="<button class='btn btn-light' onclick='window.print()'>Exporter / Imprimer PDF</button>";
+  html+="<button class='btn btn-orange' onclick='toggleLock()'>"+(chantierLocked?"Déverrouiller modifications":"Verrouiller structure")+"</button>";
+  html+=(chantierLocked?"<span class='lock-badge'>🔒 Structure verrouillée</span>":"");
+  html+="</div>";
+  html+="<div class='pdf-note'>Astuce iPhone : Imprimer → pincer l’aperçu → partager en PDF.</div>";
+  html+="</div>";
+
   html+="<div class='card'>";
   html+="<div class='title'>"+esc(p.nom)+"</div>";
   html+="<div class='muted'>Client : "+esc(p.client||"Non renseigné")+" · Chantier : "+esc(p.chantier||"Non renseigné")+"</div>";
@@ -584,7 +740,7 @@ function renderProject(){
     html+="<div class='sum-box'><span>Total prévu</span><strong>"+st.total+"</strong><div class='muted'>ml / u</div></div>";
     html+="<div class='sum-box'><span>Total posé</span><strong>"+st.pose+"</strong><div class='muted'>ml / u</div></div>";
     html+="<div class='sum-box'><span>Reste</span><strong class='"+(st.reste<=0?"reste-ok":"reste-warn")+"'>"+st.reste+"</strong><div class='muted'>ml / u</div></div>";
-    html+="<div class='sum-box'><span>Avancement îlot</span><strong class='product-pct'>"+st.pct+"%</strong></div>";
+    html+="<div class='sum-box'><span>Avancement îlot</span><strong class='product-pct'>"+st.pct+"%</strong><div class='progress-mini'><div class='progress-mini-fill' style='width:"+st.pct+"%'></div></div></div>";
     html+="</div>";
 
     html+="<button class='btn btn-small btn-blue' onclick='addProduct(\""+il.id+"\")'>+ Produit</button>";
@@ -600,7 +756,7 @@ function renderProject(){
       html+="<div class='kpi'><span>Prévu</span><input class='total' type='number' inputmode='decimal' value='"+esc(pr.total)+"' onchange='setTotal(\""+il.id+"\",\""+pr.id+"\",this.value)'></div>";
       html+="<div class='kpi'><span>Posé</span><input class='qty' type='number' inputmode='decimal' value='"+esc(pr.pose)+"' onchange='setPose(\""+il.id+"\",\""+pr.id+"\",this.value)'></div>";
       html+="<div class='kpi'><span>Reste</span><strong class='"+cls+"'>"+reste+" "+esc(pr.unite||"")+"</strong></div>";
-      html+="<div class='kpi'><span>Avancement</span><strong class='product-pct'>"+pctPr+"%</strong></div>";
+      html+="<div class='kpi'><span>Avancement</span><strong class='product-pct'>"+pctPr+"%</strong><div class='progress-mini'><div class='progress-mini-fill' style='width:"+pctPr+"%'></div></div></div>";
       html+="</div>";
       html+="<div class='row' style='margin-top:8px'><button class='btn btn-small btn-light' onclick='editProduct(\""+il.id+"\",\""+pr.id+"\")'>Modifier</button><button class='btn btn-small btn-red' onclick='deleteProduct(\""+il.id+"\",\""+pr.id+"\")'>Supprimer</button></div>";
       html+="</div>";
@@ -608,6 +764,7 @@ function renderProject(){
     html+="</div>";
   }
   byId("screenProject").innerHTML=html;
+  document.body.className=chantierLocked?"locked":"";
   renderHeader();
 }
 function showProject(){
@@ -670,6 +827,7 @@ function deleteProject(id){
   db.projects=arr; currentId=db.projects[0].id; saveDB(); showProjects();
 }
 function addIlot(){
+  if(chantierLocked){alert('Structure verrouillée. Déverrouille pour modifier.');return;}
   var p=activeProject();
   var nom=prompt("Nom de l’îlot","Ilot "+(p.ilots.length+1));
   if(!nom)return;
@@ -691,12 +849,14 @@ function findProduct(ilid,prid){
   return null;
 }
 function renameIlot(id){
+  if(chantierLocked){alert('Structure verrouillée.');return;}
   var il=findIlot(id); if(!il)return;
   var nom=prompt("Nom de l’îlot",il.nom);
   if(!nom)return;
   il.nom=nom; saveDB(); renderProject();
 }
 function deleteIlot(id){
+  if(chantierLocked){alert('Structure verrouillée.');return;}
   var p=activeProject();
   if(p.ilots.length<2){alert("Il faut garder au moins un îlot.");return;}
   if(!confirm("Supprimer cet îlot ?"))return;
@@ -705,6 +865,7 @@ function deleteIlot(id){
   p.ilots=arr; saveDB(); renderProject();
 }
 function addProduct(ilid){
+  if(chantierLocked){alert('Structure verrouillée.');return;}
   var il=findIlot(ilid); if(!il)return;
   var nom=prompt("Nom du produit","Produit");
   if(!nom)return;
@@ -714,6 +875,7 @@ function addProduct(ilid){
   saveDB(); renderProject();
 }
 function editProduct(ilid,prid){
+  if(chantierLocked){alert('Structure verrouillée.');return;}
   var pr=findProduct(ilid,prid); if(!pr)return;
   var nom=prompt("Nom du produit",pr.nom); if(!nom)return;
   pr.nom=nom;
@@ -723,6 +885,7 @@ function editProduct(ilid,prid){
   saveDB(); renderProject();
 }
 function deleteProduct(ilid,prid){
+  if(chantierLocked){alert('Structure verrouillée.');return;}
   if(!confirm("Supprimer ce produit ?"))return;
   var il=findIlot(ilid); if(!il)return;
   var arr=[];
@@ -735,11 +898,18 @@ function setPose(ilid,prid,v){
   pr.pose=v; saveDB(); renderProject();
 }
 function setTotal(ilid,prid,v){
+  if(chantierLocked){alert('Structure verrouillée.');renderProject();return;}
   var pr=findProduct(ilid,prid); if(!pr)return;
   v=Number(v||0); if(v<0)v=0;
   pr.total=v; if(Number(pr.pose)>v)pr.pose=v;
   saveDB(); renderProject();
 }
+
+function toggleLock(){
+  chantierLocked=!chantierLocked;
+  renderProject();
+}
+
 function showSave(){
   var html="<div class='card'><div class='title'>Sauvegarde</div>";
   html+="<p class='muted'>Export : sauvegarde un fichier JSON. Import : recharge une sauvegarde.</p>";
