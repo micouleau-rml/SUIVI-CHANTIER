@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Chantier Pro V9</title>
+<title>RML Gouttière Alu - Chantier Pro V9.1</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -552,6 +552,50 @@ body{
   .header{position:static!important}
 }
 
+
+/* === RESTE À POSER PAR ILOT V9.1 === */
+.reste-products{
+  margin:10px 0 12px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:14px;
+  padding:10px 12px;
+}
+.reste-products-title{
+  font-size:13px;
+  font-weight:900;
+  color:#9a3412;
+  margin-bottom:6px;
+}
+.reste-chip-wrap{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+.reste-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:white;
+  border:1px solid #fdba74;
+  color:#9a3412;
+  border-radius:999px;
+  padding:6px 9px;
+  font-size:13px;
+  font-weight:900;
+}
+.reste-chip strong{color:#ea580c}
+.reste-none{
+  background:#ecfdf5;
+  border-color:#bbf7d0;
+}
+.reste-none .reste-products-title{color:#166534}
+.reste-none-text{
+  color:#166534;
+  font-weight:900;
+  font-size:13px;
+}
+
 </style>
 </head>
 <body>
@@ -702,6 +746,22 @@ function ilotStats(il){
   var pct=total>0 ? Math.round((pose/total)*100) : 0;
   return {total:total,pose:pose,reste:reste,pct:pct};
 }
+
+function resteProductsHtml(il){
+  var chips="";
+  for(var r=0;r<il.produits.length;r++){
+    var pr=il.produits[r];
+    var reste=Number(pr.total||0)-Number(pr.pose||0);
+    if(reste>0){
+      chips+="<span class='reste-chip'>"+esc(pr.nom)+" : <strong>"+reste+" "+esc(pr.unite||"")+"</strong></span>";
+    }
+  }
+  if(!chips){
+    return "<div class='reste-products reste-none'><div class='reste-products-title'>Reste à poser</div><div class='reste-none-text'>Îlot terminé ✓</div></div>";
+  }
+  return "<div class='reste-products'><div class='reste-products-title'>Reste à poser</div><div class='reste-chip-wrap'>"+chips+"</div></div>";
+}
+
 function renderProject(){
   var p=activeProject();
   if(!p){byId("screenProject").innerHTML="<div class='card'>Aucun projet</div>";return;}
@@ -742,6 +802,8 @@ function renderProject(){
     html+="<div class='sum-box'><span>Reste</span><strong class='"+(st.reste<=0?"reste-ok":"reste-warn")+"'>"+st.reste+"</strong><div class='muted'>ml / u</div></div>";
     html+="<div class='sum-box'><span>Avancement îlot</span><strong class='product-pct'>"+st.pct+"%</strong><div class='progress-mini'><div class='progress-mini-fill' style='width:"+st.pct+"%'></div></div></div>";
     html+="</div>";
+
+    html+=resteProductsHtml(il);
 
     html+="<button class='btn btn-small btn-blue' onclick='addProduct(\""+il.id+"\")'>+ Produit</button>";
 
