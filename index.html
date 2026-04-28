@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Chantier Pro V9.3</title>
+<title>RML Gouttière Alu - Chantier Pro V9.4</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -661,6 +661,11 @@ body{
   font-weight:700;
 }
 
+
+.btn-purple{
+  background:#7c3aed;
+  color:white;
+}
 </style>
 </head>
 <body>
@@ -913,7 +918,7 @@ function renderProject(){
     html+="<div class='card'>";
     html+="<div class='ilot-head'>";
     html+="<div class='ilot-name'>"+esc(il.nom)+"</div>";
-    html+="<div class='row'><button class='btn btn-small btn-light' onclick='renameIlot(\""+il.id+"\")'>Renommer</button><button class='btn btn-small btn-red' onclick='deleteIlot(\""+il.id+"\")'>Supprimer</button></div>";
+    html+="<div class='row'><button class='btn btn-small btn-purple' onclick='duplicateIlot(\""+il.id+"\")'>Dupliquer</button><button class='btn btn-small btn-light' onclick='renameIlot(\""+il.id+"\")'>Renommer</button><button class='btn btn-small btn-red' onclick='deleteIlot(\""+il.id+"\")'>Supprimer</button></div>";
     html+="</div>";
 
     html+="<div class='ilot-summary'>";
@@ -1085,6 +1090,34 @@ function setTotal(ilid,prid,v){
   v=Number(v||0); if(v<0)v=0;
   pr.total=v; if(Number(pr.pose)>v)pr.pose=v;
   saveDB(); renderProject();
+}
+
+
+function duplicateIlot(id){
+  if(chantierLocked){alert('Structure verrouillée.');return;}
+  var p=activeProject();
+  if(!p)return;
+  var source=null;
+  for(var i=0;i<p.ilots.length;i++){
+    if(p.ilots[i].id===id){source=p.ilots[i];break;}
+  }
+  if(!source)return;
+  var newName=prompt("Nom du nouvel îlot dupliqué :", source.nom+" copie");
+  if(!newName)return;
+  var clone={id:uid(),nom:newName,produits:[]};
+  for(var j=0;j<source.produits.length;j++){
+    var pr=source.produits[j];
+    clone.produits.push({
+      id:uid(),
+      nom:pr.nom,
+      total:Number(pr.total||0),
+      unite:pr.unite||"",
+      pose:0
+    });
+  }
+  p.ilots.push(clone);
+  saveDB();
+  renderProject();
 }
 
 function toggleLock(){
