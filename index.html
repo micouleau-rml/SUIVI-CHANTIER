@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Chantier Pro V9.5</title>
+<title>RML Gouttière Alu - Chantier Pro V9.6</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -684,6 +684,35 @@ body{
   box-shadow:0 3px 14px rgba(15,23,42,.16) !important;
 }
 
+
+/* === NOTES PAR ILOT V9.6 === */
+.ilot-note{
+  margin-top:14px;
+  padding-top:10px;
+  border-top:1px dashed #cbd5e1;
+}
+.ilot-note label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+  margin-bottom:6px;
+  text-transform:uppercase;
+}
+.ilot-note textarea{
+  width:100%;
+  min-height:72px;
+  resize:vertical;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:10px;
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.35;
+  background:#f8fafc;
+  box-sizing:border-box;
+}
+
 </style>
 </head>
 <body>
@@ -966,6 +995,11 @@ function renderProject(){
       html+="<div class='row' style='margin-top:8px'><button class='btn btn-small btn-light' onclick='editProduct(\""+il.id+"\",\""+pr.id+"\")'>Modifier</button><button class='btn btn-small btn-red' onclick='deleteProduct(\""+il.id+"\",\""+pr.id+"\")'>Supprimer</button></div>";
       html+="</div>";
     }
+    html+="<div class='ilot-note'>";
+    html+="<label>Note îlot</label>";
+    html+="<textarea placeholder='Ex : Façade nord en attente enduit / SAV / accès nacelle...' oninput='saveIlotNote(\""+il.id+"\",this.value)'>"+esc(il.note||"")+"</textarea>";
+    html+="</div>";
+
     html+="</div>";
   }
   byId("screenProject").innerHTML=html;
@@ -1136,6 +1170,14 @@ function duplicateIlot(id){
   p.ilots.push(clone);
   saveDB();
   renderProject();
+}
+
+
+function saveIlotNote(ilid,val){
+  var il=findIlot(ilid);
+  if(!il)return;
+  il.note=val||"";
+  saveDB();
 }
 
 function toggleLock(){
