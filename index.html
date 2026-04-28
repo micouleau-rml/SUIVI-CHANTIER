@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Chantier Pro V9.1</title>
+<title>RML Gouttière Alu - Chantier Pro V9.2</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -596,6 +596,33 @@ body{
   font-size:13px;
 }
 
+
+/* === SYNTHÈSE PROJET DANS CARTE NOM PROJET V9.2 === */
+.project-summary{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:8px;
+  margin-top:12px;
+}
+.project-summary .sum-box{
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:8px;
+  text-align:center;
+}
+.project-summary .sum-box span{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+}
+.project-summary .sum-box strong{
+  font-size:18px;
+}
+@media(max-width:520px){
+  .project-summary{grid-template-columns:1fr 1fr}
+}
+
 </style>
 </head>
 <body>
@@ -785,6 +812,12 @@ function renderProject(){
   html+="<div class='row' style='margin-top:12px'>";
   html+="<button class='btn btn-blue' onclick='addIlot()'>+ Ajouter un îlot</button>";
   html+="<button class='btn btn-light' onclick='editProject()'>Modifier projet</button>";
+  html+="</div>";
+  html+="<div class='project-summary'>";
+  html+="<div class='sum-box'><span>Total prévu</span><strong>"+ps.total+"</strong><div class='muted'>ml / u</div></div>";
+  html+="<div class='sum-box'><span>Total posé</span><strong>"+ps.pose+"</strong><div class='muted'>ml / u</div></div>";
+  html+="<div class='sum-box'><span>Reste à poser</span><strong class='"+(ps.reste<=0?"reste-ok":"reste-warn")+"'>"+ps.reste+"</strong><div class='muted'>ml / u</div></div>";
+  html+="<div class='sum-box'><span>Avancement</span><strong class='product-pct'>"+ps.pct+"%</strong></div>";
   html+="</div></div>";
 
   for(var i=0;i<p.ilots.length;i++){
