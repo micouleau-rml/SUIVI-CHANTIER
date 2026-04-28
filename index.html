@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RML Gouttière Alu - Chantier Pro V9.2</title>
+<title>RML Gouttière Alu - Chantier Pro V9.3</title>
 <style>
 :root{
   --bg:#eef3f5;
@@ -623,6 +623,44 @@ body{
   .project-summary{grid-template-columns:1fr 1fr}
 }
 
+
+/* === SYNTHÈSE PAR FAMILLE PRODUIT V9.3 === */
+.family-summary{
+  margin-top:14px;
+  border:1px solid #dbeafe;
+  background:#f8fbff;
+  border-radius:14px;
+  padding:10px;
+}
+.family-line{
+  padding:8px 0;
+  border-bottom:1px dashed #cbd5e1;
+}
+.family-line:last-child{
+  border-bottom:none;
+}
+.family-label{
+  font-size:12px;
+  font-weight:900;
+  color:#1d4ed8;
+  margin-bottom:5px;
+  text-transform:uppercase;
+}
+.family-items{
+  font-size:13px;
+  line-height:1.5;
+  color:#0f172a;
+}
+.family-chip{
+  display:inline-block;
+  margin:3px 6px 3px 0;
+  padding:5px 8px;
+  background:white;
+  border:1px solid #bfdbfe;
+  border-radius:999px;
+  font-weight:700;
+}
+
 </style>
 </head>
 <body>
@@ -789,6 +827,59 @@ function resteProductsHtml(il){
   return "<div class='reste-products'><div class='reste-products-title'>Reste à poser</div><div class='reste-chip-wrap'>"+chips+"</div></div>";
 }
 
+
+function normalizeProductName(name){
+  return String(name||"").trim().toLowerCase();
+}
+function productDisplayName(name){
+  return String(name||"").trim();
+}
+function familyStats(project){
+  var map={};
+  if(!project || !project.ilots) return map;
+  for(var i=0;i<project.ilots.length;i++){
+    var il=project.ilots[i];
+    for(var j=0;j<il.produits.length;j++){
+      var pr=il.produits[j];
+      var key=normalizeProductName(pr.nom);
+      if(!map[key]){
+        map[key]={
+          nom:productDisplayName(pr.nom),
+          unite:pr.unite||"",
+          prevu:0,
+          pose:0
+        };
+      }
+      map[key].prevu += Number(pr.total||0);
+      map[key].pose += Number(pr.pose||0);
+    }
+  }
+  return map;
+}
+function familyLineHtml(label,type,map){
+  var html="<div class='family-line'><div class='family-label'>"+label+"</div><div class='family-items'>";
+  var has=false;
+  for(var key in map){
+    var item=map[key];
+    var val = type==="prevu" ? item.prevu : (type==="pose" ? item.pose : (item.prevu-item.pose));
+    if(val<0) val=0;
+    html+="<span class='family-chip'>"+esc(item.nom)+" : "+val+" "+esc(item.unite)+"</span>";
+    has=true;
+  }
+  if(!has){ html+="Aucune donnée"; }
+  html+="</div></div>";
+  return html;
+}
+function familySummaryHtml(project){
+  var map=familyStats(project);
+  var html="<div class='family-summary'>";
+  html+=familyLineHtml("Total prévu par produit","prevu",map);
+  html+=familyLineHtml("Total posé par produit","pose",map);
+  html+=familyLineHtml("Reste à poser par produit","reste",map);
+  html+="</div>";
+  return html;
+}
+
 function renderProject(){
   var p=activeProject();
   if(!p){byId("screenProject").innerHTML="<div class='card'>Aucun projet</div>";return;}
@@ -813,12 +904,8 @@ function renderProject(){
   html+="<button class='btn btn-blue' onclick='addIlot()'>+ Ajouter un îlot</button>";
   html+="<button class='btn btn-light' onclick='editProject()'>Modifier projet</button>";
   html+="</div>";
-  html+="<div class='project-summary'>";
-  html+="<div class='sum-box'><span>Total prévu</span><strong>"+ps.total+"</strong><div class='muted'>ml / u</div></div>";
-  html+="<div class='sum-box'><span>Total posé</span><strong>"+ps.pose+"</strong><div class='muted'>ml / u</div></div>";
-  html+="<div class='sum-box'><span>Reste à poser</span><strong class='"+(ps.reste<=0?"reste-ok":"reste-warn")+"'>"+ps.reste+"</strong><div class='muted'>ml / u</div></div>";
-  html+="<div class='sum-box'><span>Avancement</span><strong class='product-pct'>"+ps.pct+"%</strong></div>";
-  html+="</div></div>";
+  html+=familySummaryHtml(p);
+  html+="</div>";
 
   for(var i=0;i<p.ilots.length;i++){
     var il=p.ilots[i];
