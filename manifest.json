@@ -1,0 +1,19 @@
+{
+  "name": "RML Suivi Chantier",
+  "short_name": "RML Chantier",
+  "description": "Application locale de suivi de pose par îlots et produits.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#cbd5e1",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
