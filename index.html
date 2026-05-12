@@ -1090,19 +1090,34 @@ function deleteProduct(ilid,prid){
   il.produits=arr; saveDB(); renderProject();
 }
 function setPose(ilid,prid,v){
-  var pr=findProduct(ilid,prid); if(!pr)return;
-  v=Number(v||0); if(v<0)v=0; if(v>Number(pr.total||0))v=Number(pr.total||0);
-  pr.pose=v; saveDB(); renderProject();
+  var pr=findProduct(ilid,prid); 
+  if(!pr)return;
+
+  v=Number(v||0);
+
+  // On empêche seulement les quantités négatives
+  if(v<0)v=0;
+
+  // On autorise maintenant posé > prévu
+  pr.pose=v;
+
+  saveDB(); 
+  renderProject();
 }
 function setTotal(ilid,prid,v){
-  if(chantierLocked){alert('Structure verrouillée.');renderProject();return;}
-  var pr=findProduct(ilid,prid); if(!pr)return;
-  v=Number(v||0); if(v<0)v=0;
-  pr.total=v; if(Number(pr.pose)>v)pr.pose=v;
-  saveDB(); renderProject();
+  var pr=findProduct(ilid,prid); 
+  if(!pr)return;
+
+  v=Number(v||0);
+  if(v<0)v=0;
+
+  // On modifie le prévu sans toucher au posé,
+  // même si le posé devient supérieur au prévu
+  pr.total=v;
+
+  saveDB(); 
+  renderProject();
 }
-
-
 function duplicateIlot(id){
   if(chantierLocked){alert('Structure verrouillée.');return;}
   var p=activeProject();
