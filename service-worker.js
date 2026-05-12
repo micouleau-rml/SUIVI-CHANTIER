@@ -1,4 +1,4 @@
-const CACHE_NAME = "rml-suivi-chantier-v10";
+const CACHE_NAME = "rml-suivi-chantier-v11";
 const ASSETS = [
   "./",
   "./index.html",
