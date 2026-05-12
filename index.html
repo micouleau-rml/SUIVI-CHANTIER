@@ -949,7 +949,7 @@ function renderProject(){
     for(var j=0;j<il.produits.length;j++){
       var pr=il.produits[j];
       var reste=Number(pr.total||0)-Number(pr.pose||0);
-      var cls=reste<=0 ? "reste-ok" : "reste-warn";
+      var cls = reste < 0 ? "reste-neg" : (reste === 0 ? "reste-ok" : "reste-warn");
       var pctPr=Number(pr.total||0)>0 ? Math.round((Number(pr.pose||0)/Number(pr.total||0))*100) : 0;
       html+="<div class='product'>";
       html+="<div class='product-grid'>";
