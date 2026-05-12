@@ -881,7 +881,6 @@ function familyLineHtml(label,type,map){
   for(var key in map){
     var item=map[key];
     var val = type==="prevu" ? item.prevu : (type==="pose" ? item.pose : (item.prevu-item.pose));
-    if(val<0) val=0;
     html+="<span class='family-chip'>"+esc(item.nom)+" : "+val+" "+esc(item.unite)+"</span>";
     has=true;
   }
